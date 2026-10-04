@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Video Wall</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#090d14; --bg-2:#0f1723; --panel:#131d2b; --line:#26364a;
+  --ink:#f1f5fb; --ink-2:#9caabe; --ink-3:#708096;
+  --ember:#6ee7c7; --ember-ink:#071712; --sea:#91aaff; --danger:#ff7b82;
+  --shot:linear-gradient(135deg,#202a3b,#2c3850);
+  --pad:clamp(14px,3vw,36px); --cell:280px;
+  --display:"Space Grotesk",system-ui,sans-serif;
+  --body:"DM Sans",system-ui,sans-serif;
+}
+:root[data-theme=light]{
+  color-scheme:light;
+  --bg:#e9ecf2; --bg-2:#f7f8fb; --panel:#ffffff; --line:#c4cbd9;
+  --ink:#1b2331; --ink-2:#465068; --ink-3:#6a7488;
+  --ember:#c2610f; --ember-ink:#ffffff; --sea:#0b7b70; --danger:#c43c37;
+  --shot:linear-gradient(135deg,#d9dfeb,#c8d0e0);
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:90px}
+html.lock{overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.6 var(--body);-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+a{color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--ember);outline-offset:2px}
+
+/* 標題區 */
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;padding:clamp(22px,4vw,44px) var(--pad) 18px}
+.brand h1{margin:0;font:700 clamp(28px,4.4vw,48px)/1.1 var(--display);letter-spacing:.01em}
+.brand p{margin:8px 0 0;color:var(--ink-2)}
+.daynav{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.daynav a{padding:3px 12px;border:1px solid var(--line);border-radius:99px;text-decoration:none;color:var(--ink-2);font-size:13px}
+.daynav a:hover{border-color:var(--ember);color:var(--ink)}
+.tally{margin:0;color:var(--ink-2);font-size:14px;text-align:right}
+.tally strong{font:700 22px/1 var(--display);color:var(--ink);font-variant-numeric:tabular-nums}
+.theme{appearance:none;border:1px solid var(--line);background:transparent;border-radius:99px;width:38px;height:38px;cursor:pointer;color:var(--ink-2)}
+.theme:hover{border-color:var(--ember);color:var(--ink)}
+
+/* 工具列 */
+.bar{position:sticky;top:0;z-index:20;display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px var(--pad);background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.field{display:flex;align-items:center;gap:8px;height:38px;padding:0 12px;background:var(--bg-2);border:1px solid var(--line);border-radius:6px}
+.field:focus-within{border-color:var(--ember)}
+.field input,.field select{background:transparent;border:0;outline:0;min-width:0;color:inherit}
+.field select option{background:var(--panel);color:var(--ink)}
+.field .lab{color:var(--ink-3);font-size:13px}
+.field svg{flex:none;color:var(--ink-3)}
+.grow{flex:1 1 240px}
+.grow input{width:100%}
+.dens input{width:96px;accent-color:var(--ember)}
+.ghost,.cta{appearance:none;height:38px;padding:0 16px;border-radius:6px;cursor:pointer;border:1px solid var(--line);background:transparent;color:var(--ink-2)}
+.ghost:hover{color:var(--ink);border-color:var(--ink-3)}
+.cta{background:var(--ember);color:var(--ember-ink);border-color:var(--ember);font-weight:700}
+.cta:hover{filter:brightness(1.08)}
+
+/* 篩選標籤 */
+.chips{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:14px var(--pad) 0}
+.chips .rowlab{color:var(--ink-3);font-size:13px;margin-right:4px;min-width:2.5em}
+.chip{appearance:none;cursor:pointer;background:transparent;color:var(--ink-2);border:1px solid var(--line);border-radius:99px;padding:3px 13px;font-size:13px}
+.chip b{font-weight:500;opacity:.65;margin-left:6px;font-variant-numeric:tabular-nums}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip[aria-pressed=true]{background:var(--ember);border-color:var(--ember);color:var(--ember-ink)}
+.chip.dim{opacity:.4}
+
+/* 影片牆 */
+.grid{display:flex;flex-direction:column;gap:30px;padding:22px var(--pad) 72px}
+.collection{display:flex;flex-direction:column;gap:12px}
+.collection-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;border-bottom:1px solid var(--line);padding-bottom:9px}
+.collection-head h2{margin:0;font:700 clamp(20px,2.5vw,30px)/1.2 var(--display);letter-spacing:-.02em}
+.collection-head span{color:var(--ink-3);font-size:13px}
+.collection-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(var(--cell),100%),1fr));gap:14px}
+.cell{appearance:none;display:flex;flex-direction:column;padding:0;text-align:left;cursor:pointer;background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;transition:border-color .15s,transform .15s}
+.cell:hover,.cell:focus-visible{border-color:var(--ember);transform:translateY(-2px)}
+.shot{position:relative;display:block;aspect-ratio:16/9;background:var(--shot);overflow:hidden}
+.shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s}
+.cell:hover .shot img{transform:scale(1.045)}
+.play{position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:rgba(10,14,22,.62);border:1.5px solid rgba(255,255,255,.85);opacity:0;transition:opacity .15s}
+.play::after{content:"";position:absolute;left:21px;top:16px;border-left:18px solid #fff;border-top:11px solid transparent;border-bottom:11px solid transparent}
+.cell:hover .play,.cell:focus-visible .play{opacity:1}
+.dur{position:absolute;right:8px;bottom:8px;padding:1px 7px;border-radius:3px;background:rgba(10,14,22,.8);color:#fff;font:500 12px/1.5 var(--display);font-variant-numeric:tabular-nums}
+.lock{position:absolute;left:8px;top:8px;padding:1px 8px;border-radius:3px;background:var(--danger);color:#fff;font-size:12px}
+.draft{position:absolute;left:8px;top:8px;padding:2px 9px;border-radius:99px;background:var(--sea);color:#07111f;font-size:11px;font-weight:700;letter-spacing:.05em}
+.cell.local-preview{cursor:default}
+.cell.local-preview:hover{transform:none;border-color:var(--line)}
+.info{display:flex;justify-content:space-between;gap:10px;align-items:baseline;padding:10px 12px 4px}
+.info .t{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.info .d{flex:none;color:var(--ink-3);font-size:12px;font-variant-numeric:tabular-nums}
+.tg{display:flex;gap:6px;flex-wrap:wrap;padding:0 12px 12px;min-height:30px}
+.tg i{font-style:normal;font-size:12px;color:var(--sea);background:color-mix(in srgb,var(--sea) 14%,transparent);padding:0 9px;border-radius:99px}
+.empty{text-align:center;padding:72px 0;color:var(--ink-2)}
+.empty p{margin:0 0 16px}
+
+/* 播放視窗 */
+.screen{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:clamp(8px,2vw,28px);background:rgba(6,9,14,.9)}
+.stage{width:min(1120px,100%);max-height:100%;display:flex;flex-direction:column;gap:12px;overflow:auto}
+.bezel{background:#05070b;border:1px solid var(--line);border-radius:12px;padding:8px;box-shadow:0 0 0 1px rgba(242,154,67,.2),0 28px 90px rgba(0,0,0,.65)}
+.frame{position:relative;width:min(100%,calc(60vh * 16 / 9));margin-inline:auto;aspect-ratio:16/9;background:#000;border-radius:6px;overflow:hidden}
+.frame iframe,.frame #player{position:absolute;inset:0;width:100%;height:100%;border:0}
+.msg{position:absolute;inset:auto 0 0 0;padding:10px 14px;background:rgba(229,100,95,.92);color:#fff;font-size:14px}
+.now{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;color:#ece6d6}
+.now h2{margin:0;font:700 clamp(18px,2.4vw,24px)/1.3 var(--display)}
+.now p{margin:2px 0 0;color:#aab2c2;font-size:14px}
+.ctrls{display:flex;gap:8px;flex-wrap:wrap}
+.ctrls button,.ctrls a{appearance:none;display:inline-flex;align-items:center;justify-content:center;height:38px;padding:0 14px;border-radius:6px;border:1px solid #3a4862;background:#1b2434;color:#ece6d6;text-decoration:none;cursor:pointer;font-size:14px}
+.ctrls button:hover,.ctrls a:hover{border-color:var(--ember)}
+.ctrls button:disabled{opacity:.35;cursor:default}
+.ctrls button[aria-pressed=true]{background:var(--ember);border-color:var(--ember);color:var(--ember-ink);font-weight:700}
+.strip{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:thin}
+.s{appearance:none;flex:0 0 136px;position:relative;aspect-ratio:16/9;padding:0;border-radius:5px;overflow:hidden;border:2px solid transparent;opacity:.55;cursor:pointer;background:#222c3f}
+.s img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.s:hover{opacity:.9}
+.s.on{border-color:var(--ember);opacity:1}
+
+@media (max-width:640px){
+  .tally{text-align:left}
+  .dens{display:none}
+  .info{flex-direction:column;gap:0}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;scroll-behavior:auto!important}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <h1 id="siteTitle"></h1>
+    <p id="subtitle" hidden></p>
+    <nav class="daynav" id="daynav" hidden aria-label="Date navigation"></nav>
+  </div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <p class="tally" id="tally" aria-live="polite"></p>
+    <button class="theme" id="theme" type="button" aria-label="Toggle color theme" title="Toggle color theme">◐</button>
+  </div>
+</header>
+
+<div class="bar" role="search">
+  <label class="field grow">
+    <span class="sr">Search videos</span>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Search titles, tags, or notes — press / to focus" autocomplete="off">
+  </label>
+  <label class="field"><span class="lab">From</span><input id="from" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}"></label>
+  <label class="field"><span class="lab">To</span><input id="to" type="text" inputmode="numeric" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}"></label>
+  <label class="field"><span class="sr">Sort order</span>
+    <select id="sort">
+      <option value="new">Newest first</option>
+      <option value="old">Oldest first</option>
+      <option value="name">Title A–Z</option>
+      <option value="long">Longest first</option>
+    </select>
+  </label>
+  <label class="field dens"><span class="lab">Card size</span><input id="size" type="range" min="180" max="420" step="10"></label>
+  <button class="ghost" id="clear" type="button" hidden>Clear filters</button>
+  <button class="cta" id="playAll" type="button">Play all</button>
+</div>
+
+<div class="chips" id="dayChips" hidden></div>
+<div class="chips" id="tagChips" hidden></div>
+
+<main class="grid" id="grid" aria-live="polite"></main>
+<noscript><p style="padding:var(--pad)">JavaScript is required to display the video wall.</p></noscript>
+
+<div class="screen" id="screen" hidden role="dialog" aria-modal="true" aria-label="Video player">
+  <div class="stage">
+    <div class="bezel"><div class="frame"><div id="player"></div><div class="msg" id="msg" hidden></div></div></div>
+    <div class="now">
+      <div><h2 id="nowTitle"></h2><p id="nowMeta"></p></div>
+      <div class="ctrls">
+        <button id="prev" type="button">Previous</button>
+        <button id="next" type="button">Next</button>
+        <button id="auto" type="button" aria-pressed="false">Autoplay next</button>
+        <a id="yt" href="#" target="_blank" rel="noopener">Open on YouTube</a>
+        <button id="close" type="button">Close</button>
+      </div>
+    </div>
+    <div class="strip" id="strip" aria-label="Playlist"></div>
+  </div>
+</div>
+
+<script id="data" type="application/json">{"title": "Video Wall", "subtitle": "A searchable collection of YouTube videos", "days": [{"date": "2026-10-05", "count": 10}], "mode": "all", "root": "", "nav": {}, "videos": [{"id": "iMv0SGirhaQ", "title": "Chester", "date": "2026-10-05", "tags": ["Chester"], "note": "", "duration": 5, "privacy": "unlisted", "collection": "Synced from YouTube", "thumbnail": ""}, {"id": "C0DIAbh_ZxE", "title": "Chester-2", "date": "2026-10-05", "tags": ["Chester"], "note": "", "duration": 7, "privacy": "unlisted", "collection": "Synced from YouTube", "thumbnail": ""}, {"id": "i_jCQ-2Ivmw", "title": "Granclass(D)", "date": "2026-10-05", "tags": ["Granclass"], "note": "", "duration": 7, "privacy": "unlisted", "collection": "Synced from YouTube", "thumbnail": ""}, {"id": "HuKfsswoLmA", "title": "Kelot", "date": "2026-10-05", "tags": ["Kelot"], "note": "", "duration": 9, "privacy": "unlisted", "collection": "Synced from YouTube", "thumbnail": ""}, {"id": "EomFkMKaBZk", "title": "Kelot-2", "date": "2026-10-05", "tags": ["Kelot"], "note": "", "duration": 7, "privacy": "unlisted", "collection": "Synced from YouTube", "thumbnail": ""}, {"id": "WYjn1qoqJVs", "title": "Kelot-3", "date": "2026-10-05", "tags": ["Kelot"], "note": "", "duration": 14, "privacy": "unlisted", "collection": "Synced from YouTube", "thumbnail": ""}, {"id": "BdM4EQwlr9A", "title": "Kelot-4", "date": "2026-10-05", "tags": ["Kelot"], "note": "", "duration": 9, "privacy": "unlisted", "collection": "Synced from YouTube", "thumbnail": ""}, {"id": "hf1e8H1je2A", "title": "Kelot-5", "date": "2026-10-05", "tags": ["Kelot"], "note": "", "duration": 9, "privacy": "unlisted", "collection": "Synced from YouTube", "thumbnail": ""}, {"id": "X4Qil2aDAww", "title": "noname", "date": "2026-10-05", "tags": ["noname"], "note": "", "duration": 9, "privacy": "unlisted", "collection": "Synced from YouTube", "thumbnail": ""}, {"id": "qAL86gco-sI", "title": "Onyx-1", "date": "2026-10-05", "tags": ["Onyx"], "note": "", "duration": 7, "privacy": "unlisted", "collection": "Synced from YouTube", "thumbnail": ""}]}</script>
+<script>
+(() => {
+'use strict';
+const DATA = JSON.parse(document.getElementById('data').textContent);
+const $ = s => document.querySelector(s);
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch(e){ return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+};
+const collator = new Intl.Collator('en', {numeric:true, sensitivity:'base'});
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad2 = n => String(n).padStart(2,'0');
+const fmtDur = s => {
+  if (!s && s !== 0) return '';
+  s = Math.round(s);
+  const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60;
+  return h ? `${h}:${pad2(m)}:${pad2(x)}` : `${m}:${pad2(x)}`;
+};
+const fmtTotal = s => {
+  s = Math.round(s);
+  const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60;
+  if (h) return `${h} hr ${m} min`;
+  if (m) return `${m} min ${x} sec`;
+  return `${x} sec`;
+};
+const ytThumb = (id, q='hq720') => `https://i.ytimg.com/vi/${encodeURIComponent(id)}/${q}.jpg`;
+const thumb = (v, q='hq720') => v.thumbnail ? `${DATA.root}${v.thumbnail}` : ytThumb(v.id, q);
+
+const VIDEOS = DATA.videos.map(v => ({
+  ...v,
+  tags: v.tags || [],
+  _h: [v.collection || '', v.title, (v.tags||[]).join(' '), v.note || ''].join(' ').normalize('NFKC').toLowerCase()
+}));
+const DAYS = DATA.days || [];
+const state = {q:'', from:'', to:'', sort:'new', tags:new Set()};
+let view = [];
+
+/* ---------- 標題與導覽 ---------- */
+$('#siteTitle').textContent = DATA.mode === 'day' ? `${DATA.title}　${DATA.day}` : DATA.title;
+document.title = DATA.mode === 'day' ? `${DATA.title} ${DATA.day}` : DATA.title;
+if (DATA.subtitle) { const p = $('#subtitle'); p.textContent = DATA.subtitle; p.hidden = false; }
+if (DATA.mode === 'day') {
+  const nav = $('#daynav'); const parts = [`<a href="${DATA.root}index.html">All videos</a>`];
+  if (DATA.nav.prev) parts.push(`<a href="${esc(DATA.nav.prev)}.html">Earlier · ${esc(DATA.nav.prev)}</a>`);
+  if (DATA.nav.next) parts.push(`<a href="${esc(DATA.nav.next)}.html">Later · ${esc(DATA.nav.next)}</a>`);
+  nav.innerHTML = parts.join(''); nav.hidden = false;
+}
+
+/* ---------- 篩選狀態（同步到網址 #） ---------- */
+function readHash(){
+  const p = new URLSearchParams(location.hash.slice(1));
+  state.q = p.get('q') || '';
+  state.from = p.get('from') || '';
+  state.to = p.get('to') || '';
+  state.sort = p.get('sort') || 'new';
+  state.tags = new Set((p.get('tags') || '').split(',').filter(Boolean));
+}
+function writeHash(){
+  const p = new URLSearchParams();
+  if (state.q) p.set('q', state.q);
+  if (state.from) p.set('from', state.from);
+  if (state.to) p.set('to', state.to);
+  if (state.sort !== 'new') p.set('sort', state.sort);
+  if (state.tags.size) p.set('tags', [...state.tags].join(','));
+  const h = p.toString();
+  history.replaceState(null, '', h ? '#' + h : location.pathname + location.search);
+}
+function baseFilter(v){
+  if (state.from && v.date < state.from) return false;
+  if (state.to && v.date > state.to) return false;
+  const toks = state.q.normalize('NFKC').toLowerCase().split(/\s+/).filter(Boolean);
+  for (const t of toks) {
+    // 像 2026-10 或 2026-10-04 的關鍵字，視為日期搜尋；其他關鍵字只比對標題、標籤、備註
+    if (/^\d{4}-\d{1,2}(-\d{1,2})?$/.test(t)) { if (!v.date.startsWith(t.replace(/-(\d)(?!\d)/g, '-0$1'))) return false; }
+    else if (!v._h.includes(t)) return false;
+  }
+  return true;
+}
+function sortList(list){
+  const by = {
+    new:  (a,b) => b.date.localeCompare(a.date) || collator.compare(a.collection||'',b.collection||'') || collator.compare(a.title,b.title),
+    old:  (a,b) => a.date.localeCompare(b.date) || collator.compare(a.collection||'',b.collection||'') || collator.compare(a.title,b.title),
+    name: (a,b) => collator.compare(a.title,b.title),
+    long: (a,b) => (b.duration||0) - (a.duration||0) || collator.compare(a.title,b.title)
+  };
+  return list.sort(by[state.sort] || by.new);
+}
+function hasFilter(){ return !!(state.q || state.from || state.to || state.tags.size); }
+
+/* ---------- 繪製 ---------- */
+const grid = $('#grid');
+function cell(v, i){
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = `cell${v.id ? '' : ' local-preview'}`; b.dataset.i = i;
+  b.setAttribute('aria-label', `${v.id ? 'Play' : 'Preview'}: ${v.title}`);
+  const fallback = v.thumbnail ? '' : ` data-fb="${ytThumb(v.id,'hqdefault')}"`;
+  b.innerHTML =
+    `<span class="shot"><img alt="" loading="lazy" decoding="async" src="${thumb(v)}"${fallback}>` +
+    (v.duration ? `<span class="dur">${fmtDur(v.duration)}</span>` : '') +
+    (v.privacy === 'private' ? '<span class="lock">Private</span>' : '') +
+    (!v.id ? '<span class="draft">LOCAL PREVIEW</span>' : '') +
+    (v.id ? '<span class="play" aria-hidden="true"></span>' : '') + `</span>` +
+    `<span class="info"><span class="t" title="${esc(v.title)}">${esc(v.title)}</span><span class="d">${esc(v.date)}</span></span>` +
+    `<span class="tg">${v.tags.map(t => `<i>${esc(t)}</i>`).join('')}</span>`;
+  return b;
+}
+grid.addEventListener('error', e => {
+  const im = e.target;
+  if (im.tagName === 'IMG' && im.dataset.fb) { const fb = im.dataset.fb; delete im.dataset.fb; im.src = fb; }
+}, true);
+grid.addEventListener('click', e => {
+  const c = e.target.closest('.cell'); if (c && view[+c.dataset.i]?.id) openAt(+c.dataset.i);
+});
+
+function render(){
+  const base = VIDEOS.filter(baseFilter);
+  view = sortList(state.tags.size ? base.filter(v => v.tags.some(t => state.tags.has(t))) : base.slice());
+
+  // Video cards grouped by their source folder / collection heading.
+  const frag = document.createDocumentFragment();
+  if (!view.length){
+    const d = document.createElement('div'); d.className = 'empty';
+    d.innerHTML = '<p>No videos match these filters.</p>' + (hasFilter() ? '<button class="ghost" type="button" id="emptyClear">Clear filters</button>' : '');
+    frag.appendChild(d);
+  } else {
+    const groups = new Map();
+    view.forEach((v,i) => {
+      const name = v.collection || 'Videos';
+      if (!groups.has(name)) groups.set(name, []);
+      groups.get(name).push([v,i]);
+    });
+    groups.forEach((items,name) => {
+      const section = document.createElement('section'); section.className = 'collection';
+      const head = document.createElement('div'); head.className = 'collection-head';
+      head.innerHTML = `<h2>${esc(name)}</h2><span>${items.length} video${items.length === 1 ? '' : 's'}</span>`;
+      const cards = document.createElement('div'); cards.className = 'collection-grid';
+      items.forEach(([v,i]) => cards.appendChild(cell(v,i)));
+      section.append(head,cards); frag.appendChild(section);
+    });
+  }
+  grid.replaceChildren(frag);
+  const ec = $('#emptyClear'); if (ec) ec.onclick = clearFilters;
+
+  // 統計
+  const total = view.reduce((a,v) => a + (v.duration||0), 0);
+  const nd = new Set(view.map(v => v.date)).size;
+  $('#tally').innerHTML = `<strong>${view.length}</strong> video${view.length === 1 ? '' : 's'}` +
+    (view.length !== VIDEOS.length ? ` of ${VIDEOS.length}` : '') +
+    (total ? ` · ${fmtTotal(total)}` : '') + (nd > 1 ? ` · ${nd} days` : '');
+
+  // 日期標籤
+  const dc = $('#dayChips');
+  if (DATA.mode === 'all' && DAYS.length > 1){
+    dc.hidden = false;
+    dc.innerHTML = '<span class="rowlab">Dates</span>' + DAYS.map(d => {
+      const on = state.from === d.date && state.to === d.date;
+      return `<button class="chip" type="button" data-day="${esc(d.date)}" aria-pressed="${on}">${esc(d.date)}<b>${d.count}</b></button>`;
+    }).join('');
+  } else dc.hidden = true;
+
+  // 分類標籤（數量依目前的關鍵字與日期計算）
+  const all = new Map(), cur = new Map();
+  VIDEOS.forEach(v => v.tags.forEach(t => all.set(t, (all.get(t)||0) + 1)));
+  base.forEach(v => v.tags.forEach(t => cur.set(t, (cur.get(t)||0) + 1)));
+  const tc = $('#tagChips');
+  if (all.size){
+    const names = [...all.keys()].sort((a,b) => all.get(b) - all.get(a) || collator.compare(a,b));
+    tc.hidden = false;
+    tc.innerHTML = '<span class="rowlab">Tags</span>' + names.map(t => {
+      const n = cur.get(t) || 0, on = state.tags.has(t);
+      return `<button class="chip${n || on ? '' : ' dim'}" type="button" data-tag="${esc(t)}" aria-pressed="${on}">${esc(t)}<b>${n}</b></button>`;
+    }).join('');
+  } else tc.hidden = true;
+
+  $('#clear').hidden = !hasFilter();
+  $('#playAll').disabled = !view.some(v => v.id);
+}
+function update(){ writeHash(); render(); }
+function clearFilters(){
+  state.q = ''; state.from = ''; state.to = ''; state.tags.clear();
+  $('#q').value = ''; $('#from').value = ''; $('#to').value = '';
+  update();
+}
+
+/* ---------- 工具列事件 ---------- */
+let qTimer;
+$('#q').addEventListener('input', e => { clearTimeout(qTimer); qTimer = setTimeout(() => { state.q = e.target.value; update(); }, 120); });
+$('#from').addEventListener('change', e => { state.from = e.target.value; update(); });
+$('#to').addEventListener('change', e => { state.to = e.target.value; update(); });
+$('#sort').addEventListener('change', e => { state.sort = e.target.value; update(); });
+$('#clear').addEventListener('click', clearFilters);
+$('#dayChips').addEventListener('click', e => {
+  const b = e.target.closest('[data-day]'); if (!b) return;
+  const d = b.dataset.day, on = state.from === d && state.to === d;
+  state.from = on ? '' : d; state.to = on ? '' : d;
+  $('#from').value = state.from; $('#to').value = state.to; update();
+});
+$('#tagChips').addEventListener('click', e => {
+  const b = e.target.closest('[data-tag]'); if (!b) return;
+  const t = b.dataset.tag;
+  state.tags.has(t) ? state.tags.delete(t) : state.tags.add(t); update();
+});
+const size = $('#size');
+size.value = store.get('wall-size') || 280;
+document.documentElement.style.setProperty('--cell', size.value + 'px');
+size.addEventListener('input', () => { document.documentElement.style.setProperty('--cell', size.value + 'px'); store.set('wall-size', size.value); });
+$('#theme').addEventListener('click', () => {
+  const r = document.documentElement, next = r.dataset.theme === 'dark' ? 'light' : 'dark';
+  r.dataset.theme = next; store.set('wall-theme', next);
+});
+if (store.get('wall-theme')) document.documentElement.dataset.theme = store.get('wall-theme');
+
+/* ---------- 播放視窗 ---------- */
+const screenEl = $('#screen'), strip = $('#strip');
+let cur = -1, player = null, ready = false, wantId = null, autoNext = false, lastFocus = null, fallback = false;
+
+function ensureYT(cb){
+  if (fallback) return cb();
+  if (window.YT && YT.Player) return cb();
+  if (document.getElementById('ytapi')) { window.__ytQueue.push(cb); return; }
+  window.__ytQueue = [cb];
+  window.onYouTubeIframeAPIReady = () => { window.__ytQueue.splice(0).forEach(f => f()); };
+  const s = document.createElement('script');
+  s.id = 'ytapi'; s.src = 'https://www.youtube.com/iframe_api';
+  s.onerror = () => { fallback = true; window.__ytQueue.splice(0).forEach(f => f()); };
+  document.head.appendChild(s);
+}
+function play(id){
+  wantId = id;
+  ensureYT(() => {
+    if (fallback) {
+      let f = document.getElementById('fallbackFrame');
+      if (!f) { f = document.createElement('iframe'); f.id = 'fallbackFrame'; f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true; $('#player').replaceWith(f); }
+      f.src = `https://www.youtube-nocookie.com/embed/${encodeURIComponent(wantId)}?autoplay=1&rel=0`;
+      return;
+    }
+    if (!player) {
+      player = new YT.Player('player', {
+        width:'100%', height:'100%', videoId:id,
+        playerVars:{autoplay:1, rel:0, playsinline:1, modestbranding:1},
+        events:{
+          onReady:() => { ready = true; if (wantId && wantId !== id) player.loadVideoById(wantId); },
+          onStateChange:e => { if (e.data === YT.PlayerState.ENDED && autoNext) step(1); },
+          onError:() => showMsg('This video cannot be played. It may be private, removed, or restricted from embedding.')
+        }
+      });
+    } else if (ready) player.loadVideoById(id);
+  });
+}
+function showMsg(t){ const m = $('#msg'); m.textContent = t; m.hidden = !t; }
+function setAuto(on){ autoNext = on; $('#auto').setAttribute('aria-pressed', on); }
+
+function buildStrip(){
+  strip.innerHTML = view.map((v,i) =>
+    `<button class="s" type="button" data-i="${i}" title="${esc(v.title)}" aria-label="${esc(v.title)}"><img alt="" loading="lazy" src="${thumb(v,'mqdefault')}"></button>`).join('');
+}
+strip.addEventListener('click', e => { const b = e.target.closest('.s'); if (b) { cur = +b.dataset.i; show(); } });
+
+function show(){
+  const v = view[cur]; if (!v) return;
+  $('#nowTitle').textContent = v.title;
+  $('#nowMeta').textContent = [v.date, v.duration ? fmtDur(v.duration) : '', v.tags.join('、')].filter(Boolean).join('　');
+  $('#yt').href = `https://www.youtube.com/watch?v=${encodeURIComponent(v.id)}`;
+  $('#prev').disabled = cur <= 0;
+  $('#next').disabled = cur >= view.length - 1;
+  showMsg(v.privacy === 'private' ? 'This YouTube video is private and cannot play here. Change it to Unlisted to embed it.' : '');
+  [...strip.children].forEach((el,i) => el.classList.toggle('on', i === cur));
+  const on = strip.children[cur];
+  if (on) on.scrollIntoView({inline:'center', block:'nearest'});
+  play(v.id);
+}
+function step(d){ const n = cur + d; if (n >= 0 && n < view.length) { cur = n; show(); } }
+function openAt(i){
+  if (!view.length || !view[i]?.id) return;
+  cur = i; lastFocus = document.activeElement;
+  screenEl.hidden = false; document.documentElement.classList.add('lock');
+  buildStrip(); show(); $('#close').focus();
+}
+function closeScreen(){
+  screenEl.hidden = true; document.documentElement.classList.remove('lock');
+  if (fallback) { const f = document.getElementById('fallbackFrame'); if (f) f.src = 'about:blank'; }
+  else if (player && ready) player.pauseVideo();
+  if (lastFocus && lastFocus.focus) lastFocus.focus();
+}
+$('#close').addEventListener('click', closeScreen);
+$('#prev').addEventListener('click', () => step(-1));
+$('#next').addEventListener('click', () => step(1));
+$('#auto').addEventListener('click', () => setAuto(!autoNext));
+$('#playAll').addEventListener('click', () => { const i = view.findIndex(v => v.id); if (i >= 0) { setAuto(true); openAt(i); } });
+screenEl.addEventListener('click', e => { if (e.target === screenEl) closeScreen(); });
+document.addEventListener('keydown', e => {
+  const typing = /^(INPUT|SELECT|TEXTAREA)$/.test(document.activeElement.tagName);
+  if (!screenEl.hidden) {
+    if (e.key === 'Escape') closeScreen();
+    else if (e.key === 'ArrowRight') step(1);
+    else if (e.key === 'ArrowLeft') step(-1);
+  } else if (e.key === '/' && !typing) { e.preventDefault(); $('#q').focus(); }
+});
+window.addEventListener('hashchange', () => { readHash(); syncInputs(); render(); });
+
+function syncInputs(){
+  $('#q').value = state.q; $('#from').value = state.from; $('#to').value = state.to; $('#sort').value = state.sort;
+}
+readHash(); syncInputs(); render();
+})();
+</script>
+</body>
+</html>
