@@ -131,6 +131,18 @@ a{color:inherit}
   *{transition:none!important;scroll-behavior:auto!important}
 }
 </style>
+    <!-- Video Wall search-engine policy -->
+    <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+    <meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+    <meta name="bingbot" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+    <!-- Video Wall playback-quality preference -->
+    <style id="video-wall-quality-policy">
+    /* 1080p preference: enlarge the player viewport as much as the current screen allows. */
+    .screen{padding:clamp(4px,1vw,14px)}
+    .stage{width:min(1920px,100%)}
+    .frame{width:min(100%,1920px,calc(84vh * 16 / 9))}
+    </style>
+    <!-- /Video Wall playback-quality preference -->
 </head>
 <body>
 <header class="top">
